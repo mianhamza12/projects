@@ -1,0 +1,117 @@
+curl http://localhost:9200/case/ -XPUT -H 'Content-Type: application/json' -d '{
+"mappings": {
+    "properties": {
+        "general_text_vector": {
+            "type": "dense_vector",
+            "dims": 384,
+            "index": true,
+            "similarity": "cosine"
+        },
+        "general_text": {
+            "type": "text"
+        },
+        "duration": {
+            "type": "text"
+        }
+    }
+}}'
+------------------------
+curl -XGET http://localhost:9200/neural_index
+---------------
+curl -u elastic:+uQhW-HbJALovemLA+jV http://localhost:9200/neural_index/_bulk -XPOST -H 'Content-Type: application/json' -d '
+{"index": {"_id": "0"}}
+{"general_text_vector": "file_name", "color": "black"}'
+
+==startprograme==
+-------------
+python pdftotsv.py
+_________________
+python main.py "example_input/documents_10k.tsv" "example_output/vector_documents_10k.tsv"
+______
+python indexfile.py "example_input/documents_10k.tsv" "example_output/vector_documents_10k.tsv"
+-------------------
+python queryfile.py
+
+_________________________________________________
+curl http://localhost:9200/accept/ -XPUT -H 'Content-Type: application/json' -d '{
+"mappings": {
+    "properties": {
+        "general_text_vector": {
+            "type": "dense_vector",
+            "dims": 384,
+            "index": true,
+            "similarity": "cosine"
+        },
+        "title": {
+            "type": "text"
+        },
+        "summary_text": {
+            "type": "text"
+        }
+        "duration": {
+            "type": "text"
+        }
+        "country": {
+            "type": "text"
+        }
+        "skills_list": {
+            "type": "text"
+        }
+        "category": {
+            "type": "text"
+        }
+        "maximum_range": {
+            "type": "text"
+        }
+        "minimum_range": {
+            "type": "text"
+        }
+         "job_link": {
+            "type": "text"
+        }
+        "similarity ": {
+            "type": "int"
+        }
+        "text": {
+            "type": "text"
+        }
+    }
+}}'
+
+
+
+
+
+
+curl -X GET "localhost:9200/accept/_search?pretty" -H 'Content-Type: application/json' -d'
+{
+  "query": {
+    "boosting": {
+      "positive": {
+        "term": {
+          "text": "python"
+        }
+      },
+      "negative": {
+        "term": {
+          "text": "java"
+        }
+      },
+      "negative_boost": 0.5
+    }
+  }
+}
+'
+
+
+
+curl -X GET "localhost:9200/accept/_search?pretty" '
+{
+ "query": {
+   "match": {
+     "field": {
+       "query": "python^2.0"
+     }
+   }
+ }
+}'
